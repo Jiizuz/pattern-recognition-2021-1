@@ -39,18 +39,18 @@ public class CsvParser {
      * </pre>
      *
      * <p>This method resolves the {@link Path} of the specified file name and
-     * wraps the call on the method: {@link #parsePatternFromCsv(Path)}.
+     * wraps the call on the method: {@link #parsePatternsFromCsv(Path)}.
      *
      * @param fileName of the file to parse from the patterns
      * @return a {@link List} with the found patterns in the file
      * @throws IOException if there is an exception reading the file
-     * @see #parsePatternFromCsv(Path)
+     * @see #parsePatternsFromCsv(Path)
      */
     @NonNull
-    public List<Pattern> parsePatternFromCsv(final @NonNull String fileName) throws IOException {
+    public List<Pattern> parsePatternsFromCsv(final @NonNull String fileName) throws IOException {
         final Path path = Paths.get(fileName);
 
-        return parsePatternFromCsv(path);
+        return parsePatternsFromCsv(path);
     }
 
     /**
@@ -73,7 +73,7 @@ public class CsvParser {
      * @throws IOException if there is an exception reading the file
      */
     @NonNull
-    public List<Pattern> parsePatternFromCsv(final @NonNull Path path) throws IOException {
+    public List<Pattern> parsePatternsFromCsv(final @NonNull Path path) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             return reader.lines()
                     .map(line -> line.split(","))
