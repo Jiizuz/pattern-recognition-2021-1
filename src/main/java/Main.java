@@ -25,7 +25,7 @@ public class Main {
      * @param args passed in the command line
      */
     public void main(final String[] args) throws IOException {
-        final List<Pattern> patterns = CsvParser.parsePatternFromCsv(FILE_NAME);
+        final List<Pattern> patterns = CsvParser.parsePatternsFromCsv(FILE_NAME);
 
         System.out.println(patterns);
     }
