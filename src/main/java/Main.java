@@ -1,5 +1,8 @@
 import lombok.experimental.UtilityClass;
 import pattern.Pattern;
+import pattern.classification.Classifier;
+import pattern.classification.ClassifyResults;
+import pattern.classification.MinimalDistanceClassifier;
 import pattern.parser.CsvParser;
 
 import java.io.IOException;
@@ -27,6 +30,19 @@ public class Main {
     public void main(final String[] args) throws IOException {
         final List<Pattern> patterns = CsvParser.parsePatternsFromCsv(FILE_NAME);
 
-        System.out.println(patterns);
+        final Classifier minimalDistance = new MinimalDistanceClassifier();
+        minimalDistance.train(patterns);
+
+        // should be Iris-setosa
+        final Pattern test = Pattern.builder()
+                .vector(new double[] { 4.3D, 3.0D, 1.1D, 0.1D })
+                .build();
+
+        final ClassifyResults classifyResults = minimalDistance.classify(test);
+
+        System.out.println(test);
+        System.out.println();
+        classifyResults.getCompatibilities().forEach((className, percentage) ->
+                System.out.printf("%.2f%% compatible with %s%n", percentage, className));
     }
 }
