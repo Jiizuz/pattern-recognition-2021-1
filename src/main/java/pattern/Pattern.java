@@ -17,13 +17,13 @@ public class Pattern {
     /**
      * Name of the class of this pattern.
      */
-    private String className;
+    protected String className;
 
     /**
      * Vector with the numbers of the pattern.
      */
     @NonNull
-    private double[] vector;
+    protected double[] vector;
 
     /**
      * Constructs a {@link Pattern} based on the specified {@param pattern}.
