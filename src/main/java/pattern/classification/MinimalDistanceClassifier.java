@@ -3,6 +3,7 @@ package pattern.classification;
 import lombok.NonNull;
 import pattern.Pattern;
 import pattern.RepresentativePattern;
+import pattern.util.MathUtils;
 
 import java.util.*;
 
@@ -61,7 +62,7 @@ public class MinimalDistanceClassifier implements Classifier {
 
             final double average = getAverage(representationVector);
 
-            final double distance = Math.abs(average - vectorAverage);
+            final double distance = MathUtils.computeEuclideanDistance(vector, representationVector);
 
             final double min = Math.min(average, vectorAverage);
             final double max = Math.max(average, vectorAverage);
