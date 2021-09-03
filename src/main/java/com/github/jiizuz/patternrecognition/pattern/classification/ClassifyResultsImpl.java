@@ -1,4 +1,4 @@
-package pattern.classification;
+package com.github.jiizuz.patternrecognition.pattern.classification;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.StringJoiner;
  * {@link ClassifyResults} that wraps the results in a basic Java Bean.
  *
  * @author <a href="mailto:masterchack92@hotmail.com">Jiizuz</a>
- * @see pattern.classification.ClassifyResults
+ * @see com.github.jiizuz.patternrecognition.pattern.classification.ClassifyResults
  * @since 1.0
  */
 @Builder

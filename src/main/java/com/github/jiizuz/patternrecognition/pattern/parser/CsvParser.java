@@ -1,8 +1,8 @@
-package pattern.parser;
+package com.github.jiizuz.patternrecognition.pattern.parser;
 
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
-import pattern.Pattern;
+import com.github.jiizuz.patternrecognition.pattern.Pattern;
 
 import java.io.BufferedReader;
 import java.io.IOException;

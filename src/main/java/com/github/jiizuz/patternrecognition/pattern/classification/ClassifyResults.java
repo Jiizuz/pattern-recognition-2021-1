@@ -1,4 +1,4 @@
-package pattern.classification;
+package com.github.jiizuz.patternrecognition.pattern.classification;
 
 import lombok.NonNull;
 

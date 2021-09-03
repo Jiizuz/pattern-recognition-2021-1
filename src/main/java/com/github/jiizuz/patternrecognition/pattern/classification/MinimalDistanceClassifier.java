@@ -1,9 +1,9 @@
-package pattern.classification;
+package com.github.jiizuz.patternrecognition.pattern.classification;
 
 import lombok.NonNull;
-import pattern.Pattern;
-import pattern.RepresentativePattern;
-import pattern.util.MathUtils;
+import com.github.jiizuz.patternrecognition.pattern.Pattern;
+import com.github.jiizuz.patternrecognition.pattern.RepresentativePattern;
+import com.github.jiizuz.patternrecognition.pattern.util.MathUtils;
 
 import java.util.*;
 
@@ -12,7 +12,7 @@ import java.util.*;
  * the minimal distance to classify new incoming patterns.
  *
  * @author <a href="mailto:masterchack92@hotmail.com">Jiizuz</a>
- * @see pattern.classification.Classifier
+ * @see com.github.jiizuz.patternrecognition.pattern.classification.Classifier
  * @since 1.0
  */
 public class MinimalDistanceClassifier implements Classifier {
