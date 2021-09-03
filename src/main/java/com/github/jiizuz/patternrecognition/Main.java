@@ -1,9 +1,11 @@
+package com.github.jiizuz.patternrecognition;
+
+import com.github.jiizuz.patternrecognition.pattern.Pattern;
+import com.github.jiizuz.patternrecognition.pattern.classification.Classifier;
+import com.github.jiizuz.patternrecognition.pattern.classification.ClassifyResults;
+import com.github.jiizuz.patternrecognition.pattern.classification.MinimalDistanceClassifier;
+import com.github.jiizuz.patternrecognition.pattern.parser.CsvParser;
 import lombok.experimental.UtilityClass;
-import pattern.Pattern;
-import pattern.classification.Classifier;
-import pattern.classification.ClassifyResults;
-import pattern.classification.MinimalDistanceClassifier;
-import pattern.parser.CsvParser;
 
 import java.io.IOException;
 import java.util.List;

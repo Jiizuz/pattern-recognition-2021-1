@@ -1,4 +1,4 @@
-package pattern;
+package com.github.jiizuz.patternrecognition.pattern;
 
 import lombok.NonNull;
 
@@ -11,7 +11,7 @@ import java.util.StringJoiner;
  * <p>Once a representation is closed, it cannot accept more patterns.
  *
  * @author <a href="mailto:masterchack92@hotmail.com">Jiizuz</a>
- * @see pattern.Pattern
+ * @see com.github.jiizuz.patternrecognition.pattern.Pattern
  * @see java.lang.AutoCloseable
  * @since 1.0
  */

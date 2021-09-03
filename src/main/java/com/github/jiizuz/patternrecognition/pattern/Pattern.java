@@ -1,4 +1,4 @@
-package pattern;
+package com.github.jiizuz.patternrecognition.pattern;
 
 import lombok.*;
 

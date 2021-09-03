@@ -1,7 +1,7 @@
-package pattern.classification;
+package com.github.jiizuz.patternrecognition.pattern.classification;
 
 import lombok.NonNull;
-import pattern.Pattern;
+import com.github.jiizuz.patternrecognition.pattern.Pattern;
 
 import java.util.List;
 

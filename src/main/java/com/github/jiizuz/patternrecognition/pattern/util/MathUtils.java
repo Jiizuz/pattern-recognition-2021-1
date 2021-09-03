@@ -1,4 +1,4 @@
-package pattern.util;
+package com.github.jiizuz.patternrecognition.pattern.util;
 
 import lombok.experimental.UtilityClass;
 
