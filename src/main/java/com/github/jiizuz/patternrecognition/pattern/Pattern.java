@@ -1,6 +1,10 @@
 package com.github.jiizuz.patternrecognition.pattern;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Java Bean to store the data of a single pattern.
@@ -9,7 +13,7 @@ import lombok.*;
  * @since 1.0
  */
 @Data
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Pattern {
