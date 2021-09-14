@@ -1,13 +1,17 @@
 package com.github.jiizuz.patternrecognition;
 
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
+import com.github.jiizuz.patternrecognition.pattern.TestPattern;
 import com.github.jiizuz.patternrecognition.pattern.classification.Classifier;
 import com.github.jiizuz.patternrecognition.pattern.classification.ClassifyResults;
 import com.github.jiizuz.patternrecognition.pattern.classification.MinimalDistanceClassifier;
 import com.github.jiizuz.patternrecognition.pattern.parser.CsvParser;
+import com.github.jiizuz.patternrecognition.pattern.util.ConfusionMatrix;
+import com.google.common.collect.ImmutableList;
 import lombok.experimental.UtilityClass;
 
 import java.io.IOException;
+import java.util.IntSummaryStatistics;
 import java.util.List;
 
 /**
@@ -46,5 +50,24 @@ public class Main {
         System.out.println();
         classifyResults.getCompatibilities().forEach((className, percentage) ->
                 System.out.printf("%.2f%% compatible with %s%n", percentage, className));
+
+        final List<TestPattern> testPatterns = patterns.stream()
+                .map(TestPattern::new)
+                .collect(ImmutableList.toImmutableList());
+
+        final IntSummaryStatistics classifyStatistics = testPatterns.stream()
+                .peek(minimalDistance::classify)
+                .mapToInt(testPattern -> testPattern.isSuccessClassification() ? 1 : 0)
+                .summaryStatistics();
+
+        final ConfusionMatrix confusionMatrix = new ConfusionMatrix(testPatterns);
+        confusionMatrix.computeMatrix();
+
+        System.out.println();
+        System.out.printf("Train patterns: %,d%n", patterns.size());
+        System.out.printf("Classified patterns: %,d%n", classifyStatistics.getCount());
+        System.out.printf("Patterns classified successfully: %,d (%.3f%%)%n",
+                classifyStatistics.getSum(), classifyStatistics.getAverage() * 100D);
+        System.out.printf("%nConfusion matrix:%n%s%n", confusionMatrix.getDisplayMatrix());
     }
 }
