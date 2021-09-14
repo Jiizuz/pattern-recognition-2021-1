@@ -1,11 +1,14 @@
 package com.github.jiizuz.patternrecognition.pattern.classification;
 
-import lombok.NonNull;
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
 import com.github.jiizuz.patternrecognition.pattern.RepresentativePattern;
 import com.github.jiizuz.patternrecognition.pattern.util.MathUtils;
+import lombok.NonNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * {@link Classifier} that uses the average of the data and finds
@@ -50,9 +53,6 @@ public class MinimalDistanceClassifier implements Classifier {
     @NonNull
     public ClassifyResults classify(final @NonNull Pattern pattern) {
         final double[] vector = pattern.getVector();
-        final double vectorAverage = getAverage(vector);
-
-        final Map<String, Double> compatibilities = new HashMap<>(4);
 
         String foundClassName = null;
         double currentDistance = Integer.MAX_VALUE;
@@ -60,13 +60,7 @@ public class MinimalDistanceClassifier implements Classifier {
         for (final RepresentativePattern representation : representations.values()) {
             final double[] representationVector = representation.getVector();
 
-            final double average = getAverage(representationVector);
-
             final double distance = MathUtils.computeEuclideanDistance(vector, representationVector);
-
-            final double min = Math.min(average, vectorAverage);
-            final double max = Math.max(average, vectorAverage);
-            compatibilities.put(representation.getClassName(), min / max * 100D);
 
             if (distance <= currentDistance) {
                 foundClassName = representation.getClassName();
@@ -77,7 +71,6 @@ public class MinimalDistanceClassifier implements Classifier {
         pattern.setClassName(foundClassName);
 
         return ClassifyResultsImpl.builder()
-                .compatibilities(sortByValue(compatibilities))
                 .build();
     }
 
@@ -116,37 +109,5 @@ public class MinimalDistanceClassifier implements Classifier {
         if (closed) {
             throw new IllegalStateException("The algorithm is already closed");
         }
-    }
-
-    /**
-     * Sorts the specified {@param map} and returns a copy sorted.
-     *
-     * @param <K> type of the key of the map
-     * @param <V> type of value of the map to sort with, must be Comparable
-     * @param map to sort by value
-     * @return the sorted copy of the map
-     */
-    @NonNull
-    private static <K, V extends Comparable<V>> Map<K, V> sortByValue(final @NonNull Map<K, V> map) {
-        final LinkedHashMap<K, V> sortedMap = new LinkedHashMap<>();
-
-        map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
-
-        return sortedMap;
-    }
-
-    /**
-     * Returns the average of the specified {@param elements}.
-     *
-     * @param elements to derive from the average
-     * @return the average of the elements
-     */
-    private double getAverage(final double[] elements) {
-        double sum = 0D;
-        for (final double element : elements) {
-            sum += element;
-        }
-        return sum / elements.length;
     }
 }

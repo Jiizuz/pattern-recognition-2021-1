@@ -44,12 +44,9 @@ public class Main {
                 .vector(new double[] { 4.3D, 3.0D, 1.1D, 0.1D })
                 .build();
 
-        final ClassifyResults classifyResults = minimalDistance.classify(test);
+        minimalDistance.classify(test);
 
         System.out.println(test);
-        System.out.println();
-        classifyResults.getCompatibilities().forEach((className, percentage) ->
-                System.out.printf("%.2f%% compatible with %s%n", percentage, className));
 
         final List<TestPattern> testPatterns = patterns.stream()
                 .map(TestPattern::new)
