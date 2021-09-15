@@ -3,6 +3,7 @@ package com.github.jiizuz.patternrecognition.pattern.classification;
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
 import com.github.jiizuz.patternrecognition.pattern.RepresentativePattern;
 import com.github.jiizuz.patternrecognition.pattern.util.MathUtils;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 import lombok.NonNull;
 
@@ -82,5 +83,16 @@ public class MinimalDistanceClassifier implements Classifier {
      */
     private void checkCloseStatus() throws IllegalStateException {
         checkState(!closed, "The algorithm is already closed");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("representations", representations)
+                .add("closed", closed)
+                .toString();
     }
 }
