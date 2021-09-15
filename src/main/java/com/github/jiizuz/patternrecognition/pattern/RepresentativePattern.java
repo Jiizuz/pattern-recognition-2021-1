@@ -1,9 +1,10 @@
 package com.github.jiizuz.patternrecognition.pattern;
 
+import com.google.common.base.MoreObjects;
 import lombok.NonNull;
 
-import java.util.Arrays;
-import java.util.StringJoiner;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Stores the average data of a pattern based on its <b>Class Name</b>.
@@ -81,9 +82,7 @@ public class RepresentativePattern extends Pattern implements AutoCloseable {
      * @throws IllegalStateException if this representation is closed
      */
     private void checkCloseStatus() throws IllegalStateException {
-        if (closed) {
-            throw new IllegalStateException("The representation is already closed");
-        }
+        checkState(!closed, "The representation is already closed");
     }
 
     /**
@@ -94,13 +93,8 @@ public class RepresentativePattern extends Pattern implements AutoCloseable {
      * @throws NullPointerException     if the specified pattern is <tt>null</tt>
      */
     private void validatePattern(final @NonNull Pattern pattern) throws IllegalArgumentException {
-        if (!getClassName().equals(pattern.getClassName())) {
-            throw new IllegalArgumentException("The specified pattern is not of the same class name");
-        }
-
-        if (getVector().length != pattern.getVector().length) {
-            throw new IllegalArgumentException("The specified pattern has not the same size");
-        }
+        checkArgument(getClassName().equals(pattern.getClassName()), "The specified pattern is not of the same class name");
+        checkArgument(getVector().length == pattern.getVector().length, "The specified pattern has not the same size");
     }
 
     /**
@@ -108,11 +102,11 @@ public class RepresentativePattern extends Pattern implements AutoCloseable {
      */
     @Override
     public String toString() {
-        return new StringJoiner(", ", RepresentativePattern.class.getSimpleName() + "[", "]")
-                .add("className='" + className + "'")
-                .add("vector=" + Arrays.toString(vector))
-                .add("count=" + count)
-                .add("closed=" + closed)
+        return MoreObjects.toStringHelper(this)
+                .add("className", className)
+                .add("vector", vector)
+                .add("count", count)
+                .add("closed", closed)
                 .toString();
     }
 }
