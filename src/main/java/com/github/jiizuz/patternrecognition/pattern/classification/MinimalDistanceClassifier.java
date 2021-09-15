@@ -3,7 +3,6 @@ package com.github.jiizuz.patternrecognition.pattern.classification;
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
 import com.github.jiizuz.patternrecognition.pattern.RepresentativePattern;
 import com.github.jiizuz.patternrecognition.pattern.util.MathUtils;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import lombok.NonNull;
 
@@ -12,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * {@link Classifier} that uses the average of the data and finds
@@ -107,6 +107,6 @@ public class MinimalDistanceClassifier implements Classifier {
      * @throws IllegalStateException if this algorithm is closed
      */
     private void checkCloseStatus() throws IllegalStateException {
-        Preconditions.checkState(!closed, "The algorithm is already closed");
+        checkState(!closed, "The algorithm is already closed");
     }
 }
