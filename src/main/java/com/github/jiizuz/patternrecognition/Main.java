@@ -35,8 +35,12 @@ public class Main {
     public void main(final String[] args) throws IOException {
         final List<Pattern> patterns = CsvParser.parsePatternsFromCsv(FILE_NAME);
 
+        // train phase
+
         final Classifier minimalDistance = new MinimalDistanceClassifier();
         minimalDistance.train(patterns);
+
+        // single test
 
         // should be Iris-setosa
         final TestPattern test = TestPattern.builder()
@@ -47,6 +51,8 @@ public class Main {
         minimalDistance.classify(test);
 
         System.out.printf("Successful classify test? %s, %s%n", test.isSuccessClassification(), test);
+
+        // bulk test
 
         final List<TestPattern> testPatterns = patterns.stream()
                 .map(TestPattern::new)
