@@ -6,6 +6,7 @@ import com.github.jiizuz.patternrecognition.pattern.util.MathUtils;
 import com.google.common.collect.Maps;
 import lombok.NonNull;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -50,23 +51,11 @@ public class MinimalDistanceClassifier implements Classifier {
      */
     @NonNull
     public ClassifyResults classify(final @NonNull Pattern pattern) {
-        final double[] vector = pattern.getVector();
-
-        String foundClassName = null;
-        double currentDistance = Integer.MAX_VALUE;
-
-        for (final RepresentativePattern representation : representations.values()) {
-            final double[] representationVector = representation.getVector();
-
-            final double distance = MathUtils.computeEuclideanDistance(vector, representationVector);
-
-            if (distance <= currentDistance) {
-                foundClassName = representation.getClassName();
-                currentDistance = distance;
-            }
-        }
-
-        pattern.setClassName(foundClassName);
+        representations.values().stream()
+                .min(Comparator.comparingDouble(value ->
+                        MathUtils.computeEuclideanDistance(pattern.getVector(), value.getVector())))
+                .map(Pattern::getClassName)
+                .ifPresent(pattern::setClassName);
 
         return ClassifyResultsImpl.builder()
                 .build();
