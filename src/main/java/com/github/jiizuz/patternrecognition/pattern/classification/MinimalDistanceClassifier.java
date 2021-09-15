@@ -49,16 +49,12 @@ public class MinimalDistanceClassifier implements Classifier {
     /**
      * {@inheritDoc}
      */
-    @NonNull
-    public ClassifyResults classify(final @NonNull Pattern pattern) {
+    public void classify(final @NonNull Pattern pattern) {
         representations.values().stream()
                 .min(Comparator.comparingDouble(value ->
                         MathUtils.computeEuclideanDistance(pattern.getVector(), value.getVector())))
                 .map(Pattern::getClassName)
                 .ifPresent(pattern::setClassName);
-
-        return ClassifyResultsImpl.builder()
-                .build();
     }
 
     /**

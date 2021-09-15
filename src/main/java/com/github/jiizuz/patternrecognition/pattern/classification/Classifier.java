@@ -1,7 +1,7 @@
 package com.github.jiizuz.patternrecognition.pattern.classification;
 
-import lombok.NonNull;
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
+import lombok.NonNull;
 
 import java.util.List;
 
@@ -34,6 +34,5 @@ public interface Classifier {
      * @param pattern to classify
      * @throws NullPointerException if the specified pattern is <tt>null</tt>
      */
-    @NonNull
-    ClassifyResults classify(@NonNull Pattern pattern);
+    void classify(@NonNull Pattern pattern);
 }
