@@ -3,15 +3,15 @@ package com.github.jiizuz.patternrecognition.pattern.classification;
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
 import com.github.jiizuz.patternrecognition.pattern.RepresentativePattern;
 import com.github.jiizuz.patternrecognition.pattern.util.MathUtils;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import lombok.NonNull;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * {@link Classifier} that uses the average of the data and finds
@@ -41,11 +41,7 @@ public class MinimalDistanceClassifier implements Classifier {
         checkCloseStatus();
         closed = true;
 
-        for (final Pattern pattern : patterns) {
-            final RepresentativePattern representation = getRepresentation(pattern);
-
-            representation.accumulate(pattern);
-        }
+        patterns.forEach(pattern -> getRepresentation(pattern).accumulate(pattern));
 
         representations.values().forEach(RepresentativePattern::close);
     }
@@ -55,23 +51,11 @@ public class MinimalDistanceClassifier implements Classifier {
      */
     @NonNull
     public ClassifyResults classify(final @NonNull Pattern pattern) {
-        final double[] vector = pattern.getVector();
-
-        String foundClassName = null;
-        double currentDistance = Integer.MAX_VALUE;
-
-        for (final RepresentativePattern representation : representations.values()) {
-            final double[] representationVector = representation.getVector();
-
-            final double distance = MathUtils.computeEuclideanDistance(vector, representationVector);
-
-            if (distance <= currentDistance) {
-                foundClassName = representation.getClassName();
-                currentDistance = distance;
-            }
-        }
-
-        pattern.setClassName(foundClassName);
+        representations.values().stream()
+                .min(Comparator.comparingDouble(value ->
+                        MathUtils.computeEuclideanDistance(pattern.getVector(), value.getVector())))
+                .map(Pattern::getClassName)
+                .ifPresent(pattern::setClassName);
 
         return ClassifyResultsImpl.builder()
                 .build();
@@ -91,14 +75,8 @@ public class MinimalDistanceClassifier implements Classifier {
         final String className = pattern.getClassName();
         checkNotNull(className, "name of pattern");
 
-        RepresentativePattern representation = representations.get(className);
-
-        if (Objects.isNull(representation)) {
-            representation = new RepresentativePattern(className, pattern.getVector().length);
-            representations.put(className, representation);
-        }
-
-        return representation;
+        return representations.computeIfAbsent(className, name ->
+                new RepresentativePattern(name, pattern.getVector().length));
     }
 
     /**
@@ -107,6 +85,6 @@ public class MinimalDistanceClassifier implements Classifier {
      * @throws IllegalStateException if this algorithm is closed
      */
     private void checkCloseStatus() throws IllegalStateException {
-        Preconditions.checkState(!closed, "The algorithm is already closed");
+        checkState(!closed, "The algorithm is already closed");
     }
 }
