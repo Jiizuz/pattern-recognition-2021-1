@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @see java.lang.AutoCloseable
  * @since 1.0
  */
-public class RepresentativePattern extends Pattern implements AutoCloseable {
+public class RepresentativePattern extends Pattern implements AutoCloseable, Cloneable {
 
     /**
      * Amount of patterns accumulated in this representation.
@@ -95,6 +95,14 @@ public class RepresentativePattern extends Pattern implements AutoCloseable {
     private void validatePattern(final @NonNull Pattern pattern) throws IllegalArgumentException {
         checkArgument(getClassName().equals(pattern.getClassName()), "The specified pattern is not of the same class name");
         checkArgument(getVector().length == pattern.getVector().length, "The specified pattern has not the same size");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RepresentativePattern clone() {
+        return (RepresentativePattern) super.clone();
     }
 
     /**

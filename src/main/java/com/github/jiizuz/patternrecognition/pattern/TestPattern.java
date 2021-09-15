@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
  * @since 1.0
  */
 @SuperBuilder
-public class TestPattern extends Pattern {
+public class TestPattern extends Pattern implements Cloneable {
 
     /**
      * Class-name expected to be assigned to this {@link Pattern}.
@@ -61,6 +61,14 @@ public class TestPattern extends Pattern {
      */
     public boolean isSuccessClassification() {
         return Objects.equal(expectedClass, className);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TestPattern clone() {
+        return (TestPattern) super.clone();
     }
 
     /**
