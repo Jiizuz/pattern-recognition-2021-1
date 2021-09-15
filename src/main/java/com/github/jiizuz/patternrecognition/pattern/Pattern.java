@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class Pattern {
+public class Pattern implements Cloneable {
 
     /**
      * Name of the class of this pattern.
@@ -37,5 +37,18 @@ public class Pattern {
     public Pattern(final @NonNull Pattern pattern) {
         this.className = pattern.getClassName();
         this.vector = pattern.getVector().clone();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Pattern clone() {
+        try {
+            return (Pattern) super.clone();
+        } catch (CloneNotSupportedException e) {
+            // this shouldn't happen, since we are Cloneable
+            throw new InternalError(e);
+        }
     }
 }
