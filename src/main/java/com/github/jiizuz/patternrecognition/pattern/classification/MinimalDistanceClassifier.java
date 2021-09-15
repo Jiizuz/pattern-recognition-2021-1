@@ -40,11 +40,7 @@ public class MinimalDistanceClassifier implements Classifier {
         checkCloseStatus();
         closed = true;
 
-        for (final Pattern pattern : patterns) {
-            final RepresentativePattern representation = getRepresentation(pattern);
-
-            representation.accumulate(pattern);
-        }
+        patterns.forEach(pattern -> getRepresentation(pattern).accumulate(pattern));
 
         representations.values().forEach(RepresentativePattern::close);
     }
