@@ -8,7 +8,6 @@ import lombok.NonNull;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -91,14 +90,8 @@ public class MinimalDistanceClassifier implements Classifier {
         final String className = pattern.getClassName();
         checkNotNull(className, "name of pattern");
 
-        RepresentativePattern representation = representations.get(className);
-
-        if (Objects.isNull(representation)) {
-            representation = new RepresentativePattern(className, pattern.getVector().length);
-            representations.put(className, representation);
-        }
-
-        return representation;
+        return representations.computeIfAbsent(className, name ->
+                new RepresentativePattern(name, pattern.getVector().length));
     }
 
     /**
