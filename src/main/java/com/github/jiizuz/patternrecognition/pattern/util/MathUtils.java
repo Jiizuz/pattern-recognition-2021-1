@@ -2,6 +2,8 @@ package com.github.jiizuz.patternrecognition.pattern.util;
 
 import lombok.experimental.UtilityClass;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * Utility class for math methods.
  *
@@ -47,8 +49,6 @@ public class MathUtils {
      * @throws IllegalArgumentException if the vectors does not have the same size
      */
     private void ensureSameSize(double[] p1, double[] p2) throws IllegalArgumentException {
-        if (p1.length != p2.length) {
-            throw new IllegalArgumentException("p1 and p2 have different sizes");
-        }
+        checkArgument(p1.length == p2.length, "p1 and p2 have different sizes");
     }
 }
