@@ -1,8 +1,9 @@
-package pattern.parser;
+package com.github.jiizuz.patternrecognition.pattern.parser;
 
+import com.github.jiizuz.patternrecognition.pattern.Pattern;
+import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
-import pattern.Pattern;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,7 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Utility class to parse a file into multiple objects separated by
@@ -71,6 +73,7 @@ public class CsvParser {
      * @param path to parse from the patterns
      * @return a {@link List} with the found patterns in the file
      * @throws IOException if there is an exception reading the file
+     * @apiNote the returned {@link List} is <tt>immutable</tt>
      */
     @NonNull
     public List<Pattern> parsePatternsFromCsv(final @NonNull Path path) throws IOException {
@@ -78,7 +81,7 @@ public class CsvParser {
             return reader.lines()
                     .map(line -> line.split(","))
                     .map(CsvParser::parsePatternElements)
-                    .collect(Collectors.toList());
+                    .collect(ImmutableList.toImmutableList());
         }
     }
 
@@ -94,9 +97,7 @@ public class CsvParser {
      */
     @NonNull
     private Pattern parsePatternElements(final @NonNull String[] elements) {
-        if (elements.length == 0) {
-            throw new IllegalArgumentException("elements are empty");
-        }
+        checkArgument(elements.length > 0, "empty array");
 
         final double[] vector = Arrays.stream(elements, 0, elements.length - 1)
                 .map(Double::parseDouble)
