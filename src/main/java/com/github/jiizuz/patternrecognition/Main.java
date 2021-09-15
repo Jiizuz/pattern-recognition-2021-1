@@ -3,7 +3,6 @@ package com.github.jiizuz.patternrecognition;
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
 import com.github.jiizuz.patternrecognition.pattern.TestPattern;
 import com.github.jiizuz.patternrecognition.pattern.classification.Classifier;
-import com.github.jiizuz.patternrecognition.pattern.classification.ClassifyResults;
 import com.github.jiizuz.patternrecognition.pattern.classification.MinimalDistanceClassifier;
 import com.github.jiizuz.patternrecognition.pattern.parser.CsvParser;
 import com.github.jiizuz.patternrecognition.pattern.util.ConfusionMatrix;
@@ -40,13 +39,14 @@ public class Main {
         minimalDistance.train(patterns);
 
         // should be Iris-setosa
-        final Pattern test = Pattern.builder()
+        final TestPattern test = TestPattern.builder()
                 .vector(new double[] { 4.3D, 3.0D, 1.1D, 0.1D })
+                .expectedClass("Iris-setosa")
                 .build();
 
         minimalDistance.classify(test);
 
-        System.out.println(test);
+        System.out.printf("Successful classify test? %s, %s%n", test.isSuccessClassification(), test);
 
         final List<TestPattern> testPatterns = patterns.stream()
                 .map(TestPattern::new)
