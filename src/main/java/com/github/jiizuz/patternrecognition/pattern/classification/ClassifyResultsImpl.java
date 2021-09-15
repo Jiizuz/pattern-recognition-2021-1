@@ -1,9 +1,8 @@
 package com.github.jiizuz.patternrecognition.pattern.classification;
 
+import com.google.common.base.MoreObjects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-
-import java.util.StringJoiner;
 
 /**
  * {@link ClassifyResults} that wraps the results in a basic Java Bean.
@@ -21,7 +20,7 @@ public final class ClassifyResultsImpl implements ClassifyResults {
      */
     @Override
     public String toString() {
-        return new StringJoiner(", ", ClassifyResultsImpl.class.getSimpleName() + "[", "]")
+        return MoreObjects.toStringHelper(this)
                 .toString();
     }
 }

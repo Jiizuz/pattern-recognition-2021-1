@@ -3,12 +3,15 @@ package com.github.jiizuz.patternrecognition.pattern.classification;
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
 import com.github.jiizuz.patternrecognition.pattern.RepresentativePattern;
 import com.github.jiizuz.patternrecognition.pattern.util.MathUtils;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import lombok.NonNull;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * {@link Classifier} that uses the average of the data and finds
@@ -23,7 +26,7 @@ public class MinimalDistanceClassifier implements Classifier {
     /**
      * Storage of the available representations.
      */
-    private final Map<String, RepresentativePattern> representations = new HashMap<>();
+    private final Map<String, RepresentativePattern> representations = Maps.newHashMap();
 
     /**
      * Status to allow or not new trains.
@@ -86,9 +89,7 @@ public class MinimalDistanceClassifier implements Classifier {
     @NonNull
     private RepresentativePattern getRepresentation(final @NonNull Pattern pattern) throws NullPointerException {
         final String className = pattern.getClassName();
-        if (Objects.isNull(className)) {
-            throw new NullPointerException("name of pattern");
-        }
+        checkNotNull(className, "name of pattern");
 
         RepresentativePattern representation = representations.get(className);
 
@@ -106,8 +107,6 @@ public class MinimalDistanceClassifier implements Classifier {
      * @throws IllegalStateException if this algorithm is closed
      */
     private void checkCloseStatus() throws IllegalStateException {
-        if (closed) {
-            throw new IllegalStateException("The algorithm is already closed");
-        }
+        Preconditions.checkState(!closed, "The algorithm is already closed");
     }
 }
