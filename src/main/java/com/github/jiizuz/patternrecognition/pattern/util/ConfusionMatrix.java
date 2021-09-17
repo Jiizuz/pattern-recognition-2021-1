@@ -39,6 +39,7 @@ public class ConfusionMatrix {
      *
      * @implSpec this {@link List} is read-only
      */
+    @NonNull
     private final List<TestPattern> patterns;
 
     /**
