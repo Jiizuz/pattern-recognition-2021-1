@@ -26,8 +26,7 @@ public class Pattern implements Cloneable {
     /**
      * Vector with the numbers of the pattern.
      */
-    @NonNull
-    protected double[] vector;
+    protected double @NonNull [] vector;
 
     /**
      * Constructs a {@link Pattern} based on the specified {@param pattern}.
