@@ -5,6 +5,8 @@ import com.github.jiizuz.patternrecognition.pattern.TestPattern;
 import com.github.jiizuz.patternrecognition.pattern.classification.Classifier;
 import com.github.jiizuz.patternrecognition.pattern.classification.KNearestNeighborsClassifier;
 import com.github.jiizuz.patternrecognition.pattern.classification.MinimalDistanceClassifier;
+import com.github.jiizuz.patternrecognition.pattern.filter.ListPatternFilterBuilder;
+import com.github.jiizuz.patternrecognition.pattern.filter.PatternFilter;
 import com.github.jiizuz.patternrecognition.pattern.parser.CsvParser;
 import com.github.jiizuz.patternrecognition.pattern.util.ConfusionMatrix;
 import com.google.common.collect.ImmutableList;
@@ -41,6 +43,16 @@ public class Main {
      */
     public void main(final String[] args) throws IOException {
         final List<Pattern> patterns = CsvParser.parsePatternsFromCsv(FILE_NAME);
+
+        final PatternFilter filter = ListPatternFilterBuilder.create()
+                .firstX(0.50F)
+                .build();
+
+        final List<Pattern> filteredPatterns = filter.filterCopy(patterns);
+
+        for (int i = 0; i < patterns.size(); ++i) {
+            System.out.println(patterns.get(i) + " -> " + filteredPatterns.get(i));
+        }
 
         final ImmutableList<Classifier> classifiers = ImmutableList.of(
                 new MinimalDistanceClassifier(),
