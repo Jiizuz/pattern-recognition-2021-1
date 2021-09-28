@@ -1,10 +1,13 @@
 package com.github.jiizuz.patternrecognition.pattern;
 
+import com.google.common.base.MoreObjects;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.util.Arrays;
 
 /**
  * Java Bean to store the data of a single pattern.
@@ -49,5 +52,16 @@ public class Pattern implements Cloneable {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError(e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("class", className)
+                .add("vector", Arrays.toString(vector))
+                .toString();
     }
 }
