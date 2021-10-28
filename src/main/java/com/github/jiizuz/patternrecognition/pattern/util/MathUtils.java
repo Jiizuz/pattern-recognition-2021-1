@@ -34,11 +34,31 @@ public class MathUtils {
         double result = 0D;
 
         for (int i = 0; i < p1.length; ++i) {
-            result += Math.pow(p1[i] - p2[i], 2);
+            result += square(p1[i] - p2[i]);
         }
         result = Math.sqrt(result);
 
         return result;
+    }
+
+    /**
+     * Pow the specified number to {@code 2}.
+     *
+     * <p>This operation is equals as:
+     *
+     * <pre>
+     *     Math.pow(num);
+     * </pre>
+     *
+     * <p>The reason of this number is that, {@link Math#pow(double, double)}
+     * is highly expensive to simple make a squared operation.
+     *
+     * @param num to square
+     * @return the number squared
+     * @since 1.4
+     */
+    public double square(final double num) {
+        return num * num;
     }
 
     /**
