@@ -1,6 +1,7 @@
 package com.github.jiizuz.patternrecognition.pattern;
 
 import com.google.common.base.MoreObjects;
+import lombok.Getter;
 import lombok.NonNull;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -16,6 +17,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @see java.lang.AutoCloseable
  * @since 1.0
  */
+@Getter
 public class RepresentativePattern extends Pattern implements AutoCloseable, Cloneable {
 
     /**
