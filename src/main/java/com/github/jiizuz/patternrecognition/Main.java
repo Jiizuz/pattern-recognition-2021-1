@@ -5,6 +5,7 @@ import com.github.jiizuz.patternrecognition.pattern.TestPattern;
 import com.github.jiizuz.patternrecognition.pattern.classification.Classifier;
 import com.github.jiizuz.patternrecognition.pattern.classification.KNearestNeighborsClassifier;
 import com.github.jiizuz.patternrecognition.pattern.classification.MinimalDistanceClassifier;
+import com.github.jiizuz.patternrecognition.pattern.classification.NaiveBayesClassifier;
 import com.github.jiizuz.patternrecognition.pattern.filter.ListPatternFilterBuilder;
 import com.github.jiizuz.patternrecognition.pattern.filter.PatternFilter;
 import com.github.jiizuz.patternrecognition.pattern.parser.CsvParser;
@@ -56,7 +57,8 @@ public class Main {
 
         final ImmutableList<Classifier> classifiers = ImmutableList.of(
                 new MinimalDistanceClassifier(),
-                new KNearestNeighborsClassifier(K_VALUE));
+                new KNearestNeighborsClassifier(K_VALUE),
+                new NaiveBayesClassifier());
 
         classifiers.forEach(classifier -> testClassifier(classifier, patterns));
     }
