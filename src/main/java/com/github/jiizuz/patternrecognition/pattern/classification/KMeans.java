@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Random;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * K-means is an unsupervised classification algorithm (clustering)
@@ -162,6 +163,8 @@ public class KMeans {
 
             multimap.put(nearest, pattern);
         }
+
+        checkState(multimap.keySet().size() == centroids.size(), "Too many centroids");
 
         return multimap;
     }
