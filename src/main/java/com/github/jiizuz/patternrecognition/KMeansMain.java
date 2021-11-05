@@ -1,10 +1,16 @@
 package com.github.jiizuz.patternrecognition;
 
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
+import com.github.jiizuz.patternrecognition.pattern.chart.ChartKMeansRenderer;
+import com.github.jiizuz.patternrecognition.pattern.chart.PrintStreamKMeansRenderer;
 import com.github.jiizuz.patternrecognition.pattern.classification.KMeans;
+import com.github.jiizuz.patternrecognition.pattern.display.KMeansRenderer;
+import com.github.jiizuz.patternrecognition.pattern.filter.ListPatternFilterBuilder;
+import com.github.jiizuz.patternrecognition.pattern.filter.PatternFilter;
 import com.github.jiizuz.patternrecognition.pattern.parser.CsvParser;
-import com.google.common.base.Joiner;
-import lombok.NonNull;
+import com.github.jiizuz.patternrecognition.pattern.util.Centroid;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
 import lombok.experimental.UtilityClass;
 
 import java.io.IOException;
@@ -25,6 +31,11 @@ public class KMeansMain {
     private final String FILE_NAME = "iris.csv";
 
     /**
+     * Amount of centroids to use in a K-Means.
+     */
+    private final int CENTROIDS = 3;
+
+    /**
      * Runs the main instance of the project.
      *
      * @param args passed in the command line
@@ -32,52 +43,31 @@ public class KMeansMain {
     public void main(String[] args) throws IOException {
         final List<Pattern> sourcePatterns = CsvParser.parsePatternsFromCsv(FILE_NAME);
 
-        final KMeans kMeans = new KMeans(16);
+        final PatternFilter filter = ListPatternFilterBuilder.create()
+                .lastN(2)
+                .build();
+
+        final List<Pattern> filteredPatterns = filter.filterCopy(sourcePatterns);
+
+        final KMeans kMeans = new KMeans(CENTROIDS);
 
         // train phase
 
-        kMeans.train(sourcePatterns);
+        kMeans.train(filteredPatterns);
 
         // classify phase
 
-        final Joiner patternJoiner = Joiner.on('\n');
-        kMeans.classify(sourcePatterns).asMap().forEach((centroid, patterns) -> {
-            System.out.println("------------------------------ CLUSTER -----------------------------------");
-            System.out.printf("Centroid %d {%s}, %d patterns%n", centroid.getId() + 1, toString(centroid.getVector()), patterns.size());
-            System.out.println(patternJoiner.join(patterns));
-            System.out.println();
+        final ListMultimap<Centroid, Pattern> classify = kMeans.classify(filteredPatterns);
+
+        // render phase
+
+        final List<KMeansRenderer> renderers = ImmutableList.of(
+                PrintStreamKMeansRenderer.builder().build(),
+                ChartKMeansRenderer.builder().build());
+
+        renderers.forEach(renderer -> {
+            renderer.accumulate(classify);
+            renderer.renderResults();
         });
-    }
-
-    /**
-     * Returns a string representation of the contents of the specified array.
-     * The string representation consists of a list of the array's elements.
-     * Adjacent elements are separated by the characters <tt>", "</tt> (a comma
-     * followed by a space). Elements are converted to String as by
-     * <tt>String.valueOf(double)</tt>.  Returns <tt>"null"</tt> if <tt>a</tt>
-     * is <tt>null</tt>.
-     *
-     * @param a the array whose string representation to return
-     * @return a string representation of <tt>a</tt>
-     */
-    @NonNull
-    private String toString(final double[] a) {
-        if (a == null) {
-            return "null";
-        }
-
-        int iMax = a.length - 1;
-        if (iMax == -1) {
-            return "";
-        }
-
-        final StringBuilder output = new StringBuilder();
-        for (int i = 0; ; i++) {
-            output.append(a[i]);
-            if (i == iMax) {
-                return output.toString();
-            }
-            output.append(", ");
-        }
     }
 }
