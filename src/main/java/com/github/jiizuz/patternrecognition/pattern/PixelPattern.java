@@ -18,7 +18,7 @@ import java.awt.image.ColorModel;
  * @since 1.7
  */
 @Getter
-public class PixelPattern extends Pattern {
+public class PixelPattern extends Pattern implements Cloneable {
 
     /**
      * Coordinate in the X axis.
@@ -257,6 +257,14 @@ public class PixelPattern extends Pattern {
                 ((r & 0xFF) << 16) |
                 ((g & 0xFF) << 8) |
                 (b & 0xFF);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PixelPattern clone() {
+        return (PixelPattern) super.clone();
     }
 
     /**
