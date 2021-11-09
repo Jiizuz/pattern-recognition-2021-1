@@ -14,12 +14,12 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.NonNull;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * K-means is an unsupervised classification algorithm (clustering)
@@ -101,8 +101,11 @@ public class KMeans {
         final Random random = new Random();
 
         for (byte i = 0; i < amount; ++i) {
-            final double[] vector = patterns.get(getNext(random, added, patterns.size()))
-                    .getVector();
+            double[] vector;
+
+            do {
+                vector = patterns.get(getNext(random, added, patterns.size())).getVector();
+            } while (containsCentroid(vector));
 
             // add pseudo-random centroids
             centroids.add(new Centroid(i, vector));
@@ -164,8 +167,6 @@ public class KMeans {
             multimap.put(nearest, pattern);
         }
 
-        checkState(multimap.keySet().size() == centroids.size(), "Too many centroids");
-
         return multimap;
     }
 
@@ -220,6 +221,21 @@ public class KMeans {
     }
 
     // util
+
+    /**
+     * Returns whether a {@link Centroid} already has the specified vector.
+     *
+     * @param vector to check if it is already a centroid with
+     * @return <tt>true</tt> if a centroid already has the specified vector
+     */
+    private boolean containsCentroid(final double @NonNull [] vector) {
+        for (int i = 0, n = centroids.size(); i < n; i++) {
+            if (Arrays.equals(centroids.get(i).getVector(), vector)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Searches for the next pseudo-random integer using the specified
