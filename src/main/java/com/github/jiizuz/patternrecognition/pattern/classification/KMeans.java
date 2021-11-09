@@ -2,6 +2,7 @@ package com.github.jiizuz.patternrecognition.pattern.classification;
 
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
 import com.github.jiizuz.patternrecognition.pattern.util.Centroid;
+import com.github.jiizuz.patternrecognition.pattern.util.CentroidFactory;
 import com.github.jiizuz.patternrecognition.pattern.util.MathUtils;
 import com.github.jiizuz.patternrecognition.pattern.util.RepresentativeCentroid;
 import com.google.common.collect.ImmutableList;
@@ -44,12 +45,13 @@ import static com.google.common.base.Preconditions.checkArgument;
  * <p>Steps 2 and 3 are repeated until the centroids do not move, or move
  * below a threshold distance at each step.
  *
+ * @param <C> Type of centroids to generate on the classifications.
  * @author <a href="mailto:masterchack92@hotmail.com">Jiizuz</a>
  * @apiNote This class is not Thread-Safe. One instance must be created
  * when using a multi-thread project.
  * @since 1.5
  */
-public class KMeans {
+public class KMeans<C extends Centroid> {
 
     /**
      * Maximum amount of centroids per classifier.
@@ -62,17 +64,28 @@ public class KMeans {
     private final int amount;
 
     /**
+     * {@link CentroidFactory} to create centroids on-demand.
+     */
+    private final CentroidFactory<C> centroidFactory;
+
+    /**
      * Current centroids.
      */
-    private List<Centroid> centroids;
+    private List<C> centroids;
 
     /**
      * Constructs a new {@link KMeans} with the specified amount of centroids.
      *
+     * <p>For the previous version constructor, the next code should be used:
+     * <pre>
+     *     KMeans<Centroid> kMeans = new KMeans<>(centroids, Centroid::new);
+     * </pre>
+     *
      * @param centroidsAmount amount of the centroids to generate
      */
-    public KMeans(final int centroidsAmount) {
+    public KMeans(final int centroidsAmount, final @NonNull CentroidFactory<C> factory) {
         amount = Math.min(MAX_CENTROIDS, centroidsAmount);
+        centroidFactory = factory;
 
         // initialize early for the train
         centroids = Lists.newArrayListWithCapacity(amount);
@@ -108,8 +121,12 @@ public class KMeans {
                 vector = patterns.get(getNext(random, added, patterns.size())).getVector();
             } while (containsCentroid(vector));
 
+            final C centroid = centroidFactory.get();
+            centroid.setId(i);
+            centroid.setVector(vector);
+
             // add pseudo-random centroids
-            centroids.add(new Centroid(i, vector));
+            centroids.add(centroid);
         }
     }
 
@@ -126,10 +143,10 @@ public class KMeans {
      * are modified in any way, i.e. they can be <tt>immutable</tt>.
      */
     @NonNull
-    public <P extends Pattern> ListMultimap<Centroid, P> classify(final @NonNull List<P> patterns) {
-        final ListMultimap<Centroid, P> classification = getClassification(patterns);
+    public <P extends Pattern> ListMultimap<C, P> classify(final @NonNull List<P> patterns) {
+        final ListMultimap<C, P> classification = getClassification(patterns);
 
-        final List<Centroid> relocated = relocateCentroids(classification);
+        final List<C> relocated = relocateCentroids(classification);
         if (centroidDiscrepancy(relocated)) {
             // update the centroids for the next attempt
             centroids = relocated;
@@ -154,15 +171,15 @@ public class KMeans {
      * @see MathUtils#computeEuclideanDistance(double[], double[])
      */
     @NonNull
-    private <P extends Pattern> ListMultimap<Centroid, P> getClassification(final @NonNull List<P> patterns) {
+    private <P extends Pattern> ListMultimap<C, P> getClassification(final @NonNull List<P> patterns) {
         // this map will have exactly centroids#size() centroids with at least 1 pattern
-        final ListMultimap<Centroid, P> multimap = MultimapBuilder.ListMultimapBuilder
+        final ListMultimap<C, P> multimap = MultimapBuilder.ListMultimapBuilder
                 .treeKeys(Comparator.comparingInt(Centroid::getId))
                 .arrayListValues(16)
                 .build();
 
         for (final P pattern : patterns) {
-            final Centroid nearest = centroids.stream()
+            final C nearest = centroids.stream()
                     .min(Comparator.comparingDouble(centroid ->
                             MathUtils.computeEuclideanDistance(pattern.getVector(), centroid.getVector())))
                     .orElseThrow(() -> new Error("this should never happen"));
@@ -189,7 +206,7 @@ public class KMeans {
      * @return a {@link List} with the new relocated {@link Centroid}
      */
     @NonNull
-    private <P extends Pattern> List<Centroid> relocateCentroids(final @NonNull ListMultimap<Centroid, P> centroidMap) {
+    private <P extends Pattern> List<C> relocateCentroids(final @NonNull ListMultimap<C, P> centroidMap) {
         final Int2ObjectMap<RepresentativeCentroid> representativeCentroids = new Int2ObjectOpenHashMap<>(amount + 1, 0.99F);
 
         centroidMap.forEach((centroid, pattern) -> representativeCentroids.computeIfAbsent(centroid.getId(), id ->
@@ -198,7 +215,7 @@ public class KMeans {
         return representativeCentroids.values()
                 .stream()
                 .peek(RepresentativeCentroid::close)
-                .map(Centroid::new)
+                .map(this::cloneCentroid)
                 .collect(ImmutableList.toImmutableList());
     }
 
@@ -212,7 +229,7 @@ public class KMeans {
      * @return <tt>true</tt> if the specified list have a discrepancy
      * TODO Jiizuz: 5/11/21 Implement a threshold
      */
-    private boolean centroidDiscrepancy(final @NonNull List<Centroid> other) {
+    private boolean centroidDiscrepancy(final @NonNull List<C> other) {
         checkArgument(other.size() == centroids.size(), "other centroids have different size", other.size());
 
         for (int i = 0; i < amount; i++) {
@@ -258,5 +275,18 @@ public class KMeans {
             next = random.nextInt(max);
         } while (!set.add(next));
         return next;
+    }
+
+    /**
+     * Clones the specified {@link Centroid} into a {@link C} centroid type.
+     *
+     * @param centroid to clone
+     * @return the cloned {@link Centroid} in a {@link C} form
+     */
+    private C cloneCentroid(final @NonNull Centroid centroid) {
+        final C clone = centroidFactory.get();
+        clone.setId(centroid.getId());
+        clone.setVector(centroid.getVector().clone());
+        return clone;
     }
 }
