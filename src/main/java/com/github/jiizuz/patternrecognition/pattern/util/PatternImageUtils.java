@@ -54,17 +54,34 @@ public class PatternImageUtils {
      *
      * @param pixelMap map with the pixels per centroid to draw on the image
      * @param image    to set over the sRGB pixels
+     * @param xOffset  to set over the image in the X axis
+     * @param yOffset  to set over the image in the Y axis
      * @throws IllegalArgumentException if the pixel map is empty
      * @throws NullPointerException     if either the map or image are <tt>null</tt>
      */
-    public void writeCentroidPixels(final @NonNull ListMultimap<PixelCentroid, PixelPattern> pixelMap, final @NonNull BufferedImage image) {
+    public void writeCentroidPixels(final @NonNull ListMultimap<PixelCentroid, PixelPattern> pixelMap, final @NonNull BufferedImage image, final int xOffset, final int yOffset) {
         checkArgument(!pixelMap.isEmpty(), "empty pixel map");
 
         // set centroid rgb on pixels
         pixelMap.asMap().forEach((centroid, pixels) -> {
             final int rgb = centroid.getRGB(); // this method computes the result, stored for performance
 
-            pixels.forEach(pixel -> image.setRGB(pixel.getX(), pixel.getY(), rgb));
+            pixels.forEach(pixel -> image.setRGB(xOffset + pixel.getX(), yOffset + pixel.getY(), rgb));
         });
+    }
+
+    /**
+     * Draws the {@link PixelPattern} contained in the specified map but with
+     * the actual {@code sRGB} value of the {@link PixelCentroid} owner of it.
+     *
+     * @param pixelMap map with the pixels per centroid to draw on the image
+     * @param image    to set over the sRGB pixels
+     * @throws IllegalArgumentException if the pixel map is empty
+     * @throws NullPointerException     if either the map or image are <tt>null</tt>
+     * @apiNote This method sets offsets at <tt>0</tt>
+     * @see #writeCentroidPixels(ListMultimap, BufferedImage, int, int)
+     */
+    public void writeCentroidPixels(final @NonNull ListMultimap<PixelCentroid, PixelPattern> pixelMap, final @NonNull BufferedImage image) {
+        writeCentroidPixels(pixelMap, image, 0, 0);
     }
 }
