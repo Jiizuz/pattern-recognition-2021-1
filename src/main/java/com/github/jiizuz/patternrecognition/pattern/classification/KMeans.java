@@ -100,7 +100,7 @@ public class KMeans {
         // generates pseudo-random indexes
         final Random random = new Random();
 
-        for (byte i = 0; i < amount; ++i) {
+        for (int i = 0; i < amount; ++i) {
             double[] vector;
 
             do {
@@ -211,7 +211,7 @@ public class KMeans {
     private boolean centroidDiscrepancy(final @NonNull List<Centroid> other) {
         checkArgument(other.size() == centroids.size(), "other centroids have different size", other.size());
 
-        for (byte i = 0; i < amount; i++) {
+        for (int i = 0; i < amount; i++) {
             if (!centroids.get(i).equals(other.get(i))) {
                 return true;
             }
