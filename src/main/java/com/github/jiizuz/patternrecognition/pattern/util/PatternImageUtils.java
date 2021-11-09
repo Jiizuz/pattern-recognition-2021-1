@@ -3,12 +3,15 @@ package com.github.jiizuz.patternrecognition.pattern.util;
 import com.github.jiizuz.patternrecognition.image.util.ImageUtils;
 import com.github.jiizuz.patternrecognition.pattern.PixelPattern;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * {@link UtilityClass} with utility methods related with a pattern image.
@@ -43,5 +46,25 @@ public class PatternImageUtils {
         }
 
         return list.build();
+    }
+
+    /**
+     * Draws the {@link PixelPattern} contained in the specified map but with
+     * the actual {@code sRGB} value of the {@link PixelCentroid} owner of it.
+     *
+     * @param pixelMap map with the pixels per centroid to draw on the image
+     * @param image    to set over the sRGB pixels
+     * @throws IllegalArgumentException if the pixel map is empty
+     * @throws NullPointerException     if either the map or image are <tt>null</tt>
+     */
+    public void writeCentroidPixels(final @NonNull ListMultimap<PixelCentroid, PixelPattern> pixelMap, final @NonNull BufferedImage image) {
+        checkArgument(!pixelMap.isEmpty(), "empty pixel map");
+
+        // set centroid rgb on pixels
+        pixelMap.asMap().forEach((centroid, pixels) -> {
+            final int rgb = centroid.getRGB(); // this method computes the result, stored for performance
+
+            pixels.forEach(pixel -> image.setRGB(pixel.getX(), pixel.getY(), rgb));
+        });
     }
 }
