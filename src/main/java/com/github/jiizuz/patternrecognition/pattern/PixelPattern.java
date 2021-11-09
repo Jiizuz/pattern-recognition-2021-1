@@ -1,5 +1,6 @@
 package com.github.jiizuz.patternrecognition.pattern;
 
+import com.github.jiizuz.patternrecognition.color.util.ColorUtils;
 import com.google.common.base.MoreObjects;
 import lombok.Getter;
 
@@ -84,7 +85,7 @@ public class PixelPattern extends Pattern {
         this.x = x;
         this.y = y;
 
-        checkColorValueRange(r, g, b, a);
+        ColorUtils.checkColorValueRange(r, g, b, a);
     }
 
     /**
@@ -162,7 +163,7 @@ public class PixelPattern extends Pattern {
     public PixelPattern(final int x, final int y, final float r, final float g, final float b) {
         this(x, y, (int) (r * 255 + 0.5), (int) (g * 255 + 0.5), (int) (b * 255 + 0.5), 255);
 
-        checkColorValueRange(r, g, b, 1.0F);
+        ColorUtils.checkColorValueRange(r, g, b, 1.0F);
     }
 
     /**
@@ -192,7 +193,7 @@ public class PixelPattern extends Pattern {
     public PixelPattern(final int x, final int y, final float r, final float g, final float b, final float a) {
         this(x, y, (int) (r * 255 + 0.5), (int) (g * 255 + 0.5), (int) (b * 255 + 0.5), (int) (a * 255 + 0.5));
 
-        checkColorValueRange(r, g, b, a);
+        ColorUtils.checkColorValueRange(r, g, b, a);
     }
 
     /**
@@ -256,78 +257,6 @@ public class PixelPattern extends Pattern {
                 ((r & 0xFF) << 16) |
                 ((g & 0xFF) << 8) |
                 (b & 0xFF);
-    }
-
-    /**
-     * Checks the color integer components supplied for validity.
-     * Throws an {@link IllegalArgumentException} if the value is out of
-     * range.
-     *
-     * @param r the Red component
-     * @param g the Green component
-     * @param b the Blue component
-     * @param a the Alpha component
-     **/
-    private static void checkColorValueRange(final int r, final int g, final int b, final int a) {
-        boolean rangeError = false;
-        String badComponentString = "";
-
-        if (a < 0 || a > 255) {
-            rangeError = true;
-            badComponentString = badComponentString + " Alpha";
-        }
-        if (r < 0 || r > 255) {
-            rangeError = true;
-            badComponentString = badComponentString + " Red";
-        }
-        if (g < 0 || g > 255) {
-            rangeError = true;
-            badComponentString = badComponentString + " Green";
-        }
-        if (b < 0 || b > 255) {
-            rangeError = true;
-            badComponentString = badComponentString + " Blue";
-        }
-        if (rangeError) {
-            throw new IllegalArgumentException("Color parameter outside expected range:"
-                    + badComponentString);
-        }
-    }
-
-    /**
-     * Checks the color <tt>float</tt> components supplied for validity.
-     * Throws an {@link IllegalArgumentException} if the value is out
-     * of range.
-     *
-     * @param r the Red component
-     * @param g the Green component
-     * @param b the Blue component
-     * @param a the Alpha component
-     **/
-    private static void checkColorValueRange(final float r, final float g, final float b, final float a) {
-        boolean rangeError = false;
-        String badComponentString = "";
-
-        if (a < 0.0 || a > 1.0) {
-            rangeError = true;
-            badComponentString = badComponentString + " Alpha";
-        }
-        if (r < 0.0 || r > 1.0) {
-            rangeError = true;
-            badComponentString = badComponentString + " Red";
-        }
-        if (g < 0.0 || g > 1.0) {
-            rangeError = true;
-            badComponentString = badComponentString + " Green";
-        }
-        if (b < 0.0 || b > 1.0) {
-            rangeError = true;
-            badComponentString = badComponentString + " Blue";
-        }
-        if (rangeError) {
-            throw new IllegalArgumentException("Color parameter outside expected range:"
-                    + badComponentString);
-        }
     }
 
     /**
