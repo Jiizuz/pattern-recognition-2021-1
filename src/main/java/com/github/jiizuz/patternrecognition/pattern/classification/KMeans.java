@@ -84,11 +84,12 @@ public class KMeans {
      * <p>Once the classifier is trained, it can classify other patterns.
      *
      * @param patterns to train with this classifier
+     * @param <P>      type of {@link Pattern} to handle
      * @throws NullPointerException if the specified list is <tt>null</tt>
      * @apiNote Multiple trains can be made, but previous train data will
      * be dumped.
      */
-    public void train(final @NonNull List<Pattern> patterns) {
+    public <P extends Pattern> void train(final @NonNull List<P> patterns) {
         // dump previous data
 
         centroids.clear();
@@ -118,14 +119,15 @@ public class KMeans {
      * identified by the {@link Centroid}.
      *
      * @param patterns to classify
+     * @param <P>      type of {@link Pattern} to handle
      * @return the classification result grouped by the cluster
      * @throws NullPointerException if the list is <tt>null</tt>
      * @apiNote The specified {@link List} neither the {@link Pattern}
      * are modified in any way, i.e. they can be <tt>immutable</tt>.
      */
     @NonNull
-    public ListMultimap<Centroid, Pattern> classify(final @NonNull List<Pattern> patterns) {
-        final ListMultimap<Centroid, Pattern> classification = getClassification(patterns);
+    public <P extends Pattern> ListMultimap<Centroid, P> classify(final @NonNull List<P> patterns) {
+        final ListMultimap<Centroid, P> classification = getClassification(patterns);
 
         final List<Centroid> relocated = relocateCentroids(classification);
         if (centroidDiscrepancy(relocated)) {
@@ -146,19 +148,20 @@ public class KMeans {
      * euclidean distance from the pattern to the centroid position.
      *
      * @param patterns to classify
+     * @param <P>      type of {@link Pattern} to handle
      * @return a {@link ListMultimap} with the patterns identified by their closest centroid
      * @apiNote The pattern's vector size must be the same as centroids size.
      * @see MathUtils#computeEuclideanDistance(double[], double[])
      */
     @NonNull
-    private ListMultimap<Centroid, Pattern> getClassification(final @NonNull List<Pattern> patterns) {
+    private <P extends Pattern> ListMultimap<Centroid, P> getClassification(final @NonNull List<P> patterns) {
         // this map will have exactly centroids#size() centroids with at least 1 pattern
-        final ListMultimap<Centroid, Pattern> multimap = MultimapBuilder.ListMultimapBuilder
+        final ListMultimap<Centroid, P> multimap = MultimapBuilder.ListMultimapBuilder
                 .treeKeys(Comparator.comparingInt(Centroid::getId))
                 .arrayListValues(16)
                 .build();
 
-        for (final Pattern pattern : patterns) {
+        for (final P pattern : patterns) {
             final Centroid nearest = centroids.stream()
                     .min(Comparator.comparingDouble(centroid ->
                             MathUtils.computeEuclideanDistance(pattern.getVector(), centroid.getVector())))
@@ -182,10 +185,11 @@ public class KMeans {
      * </pre>
      *
      * @param centroidMap classified patterns per centroid to relocate
+     * @param <P>         type of {@link Pattern} to handle
      * @return a {@link List} with the new relocated {@link Centroid}
      */
     @NonNull
-    private List<Centroid> relocateCentroids(final @NonNull ListMultimap<Centroid, Pattern> centroidMap) {
+    private <P extends Pattern> List<Centroid> relocateCentroids(final @NonNull ListMultimap<Centroid, P> centroidMap) {
         final Int2ObjectMap<RepresentativeCentroid> representativeCentroids = new Int2ObjectOpenHashMap<>(amount + 1, 0.99F);
 
         centroidMap.forEach((centroid, pattern) -> representativeCentroids.computeIfAbsent(centroid.getId(), id ->
