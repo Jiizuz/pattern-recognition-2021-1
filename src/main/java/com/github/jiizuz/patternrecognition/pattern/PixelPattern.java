@@ -119,6 +119,8 @@ public class PixelPattern extends Pattern {
      * If the <tt>hasAlpha</tt> argument is <tt>false</tt>, alpha is defaulted
      * to 255.
      *
+     * @param x        coordinate in the X axis of the pixel
+     * @param y        coordinate in the Y axis of the pixel
      * @param rgba     the combined RGBA components
      * @param hasAlpha <tt>true</tt> if the alpha bits are valid;
      *                 <tt>false</tt> otherwise
@@ -141,6 +143,8 @@ public class PixelPattern extends Pattern {
      * actual color used in rendering depends on finding the best match
      * given the color space available for a particular output device.
      *
+     * @param x coordinate in the X axis of the pixel
+     * @param y coordinate in the Y axis of the pixel
      * @param r the red component
      * @param g the green component
      * @param b the blue component
@@ -168,6 +172,8 @@ public class PixelPattern extends Pattern {
      * depends on finding the best match given the color space available
      * for a particular output device.
      *
+     * @param x coordinate in the X axis of the pixel
+     * @param y coordinate in the Y axis of the pixel
      * @param r the red component
      * @param g the green component
      * @param b the blue component
