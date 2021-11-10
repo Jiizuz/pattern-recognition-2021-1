@@ -49,7 +49,7 @@ public class KMeansMain {
 
         final List<Pattern> filteredPatterns = filter.filterCopy(sourcePatterns);
 
-        final KMeans kMeans = new KMeans(CENTROIDS);
+        final KMeans<Centroid> kMeans = new KMeans<>(CENTROIDS, Centroid::new);
 
         // train phase
 

@@ -2,6 +2,7 @@ package com.github.jiizuz.patternrecognition.pattern.classification;
 
 import com.github.jiizuz.patternrecognition.pattern.Pattern;
 import com.github.jiizuz.patternrecognition.pattern.util.Centroid;
+import com.github.jiizuz.patternrecognition.pattern.util.CentroidFactory;
 import com.github.jiizuz.patternrecognition.pattern.util.MathUtils;
 import com.github.jiizuz.patternrecognition.pattern.util.RepresentativeCentroid;
 import com.google.common.collect.ImmutableList;
@@ -14,12 +15,12 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.NonNull;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * K-means is an unsupervised classification algorithm (clustering)
@@ -44,12 +45,13 @@ import static com.google.common.base.Preconditions.checkState;
  * <p>Steps 2 and 3 are repeated until the centroids do not move, or move
  * below a threshold distance at each step.
  *
+ * @param <C> Type of centroids to generate on the classifications.
  * @author <a href="mailto:masterchack92@hotmail.com">Jiizuz</a>
  * @apiNote This class is not Thread-Safe. One instance must be created
  * when using a multi-thread project.
  * @since 1.5
  */
-public class KMeans {
+public class KMeans<C extends Centroid> {
 
     /**
      * Maximum amount of centroids per classifier.
@@ -62,17 +64,28 @@ public class KMeans {
     private final int amount;
 
     /**
+     * {@link CentroidFactory} to create centroids on-demand.
+     */
+    private final CentroidFactory<C> centroidFactory;
+
+    /**
      * Current centroids.
      */
-    private List<Centroid> centroids;
+    private List<C> centroids;
 
     /**
      * Constructs a new {@link KMeans} with the specified amount of centroids.
      *
+     * <p>For the previous version constructor, the next code should be used:
+     * <pre>
+     *     KMeans<Centroid> kMeans = new KMeans<>(centroids, Centroid::new);
+     * </pre>
+     *
      * @param centroidsAmount amount of the centroids to generate
      */
-    public KMeans(final int centroidsAmount) {
+    public KMeans(final int centroidsAmount, final @NonNull CentroidFactory<C> factory) {
         amount = Math.min(MAX_CENTROIDS, centroidsAmount);
+        centroidFactory = factory;
 
         // initialize early for the train
         centroids = Lists.newArrayListWithCapacity(amount);
@@ -84,11 +97,12 @@ public class KMeans {
      * <p>Once the classifier is trained, it can classify other patterns.
      *
      * @param patterns to train with this classifier
+     * @param <P>      type of {@link Pattern} to handle
      * @throws NullPointerException if the specified list is <tt>null</tt>
      * @apiNote Multiple trains can be made, but previous train data will
      * be dumped.
      */
-    public void train(final @NonNull List<Pattern> patterns) {
+    public <P extends Pattern> void train(final @NonNull List<P> patterns) {
         // dump previous data
 
         centroids.clear();
@@ -100,12 +114,19 @@ public class KMeans {
         // generates pseudo-random indexes
         final Random random = new Random();
 
-        for (byte i = 0; i < amount; ++i) {
-            final double[] vector = patterns.get(getNext(random, added, patterns.size()))
-                    .getVector();
+        for (int i = 0; i < amount; ++i) {
+            double[] vector;
+
+            do {
+                vector = patterns.get(getNext(random, added, patterns.size())).getVector();
+            } while (containsCentroid(vector));
+
+            final C centroid = centroidFactory.get();
+            centroid.setId(i);
+            centroid.setVector(vector);
 
             // add pseudo-random centroids
-            centroids.add(new Centroid(i, vector));
+            centroids.add(centroid);
         }
     }
 
@@ -115,16 +136,17 @@ public class KMeans {
      * identified by the {@link Centroid}.
      *
      * @param patterns to classify
+     * @param <P>      type of {@link Pattern} to handle
      * @return the classification result grouped by the cluster
      * @throws NullPointerException if the list is <tt>null</tt>
      * @apiNote The specified {@link List} neither the {@link Pattern}
      * are modified in any way, i.e. they can be <tt>immutable</tt>.
      */
     @NonNull
-    public ListMultimap<Centroid, Pattern> classify(final @NonNull List<Pattern> patterns) {
-        final ListMultimap<Centroid, Pattern> classification = getClassification(patterns);
+    public <P extends Pattern> ListMultimap<C, P> classify(final @NonNull List<P> patterns) {
+        final ListMultimap<C, P> classification = getClassification(patterns);
 
-        final List<Centroid> relocated = relocateCentroids(classification);
+        final List<C> relocated = relocateCentroids(classification);
         if (centroidDiscrepancy(relocated)) {
             // update the centroids for the next attempt
             centroids = relocated;
@@ -143,28 +165,27 @@ public class KMeans {
      * euclidean distance from the pattern to the centroid position.
      *
      * @param patterns to classify
+     * @param <P>      type of {@link Pattern} to handle
      * @return a {@link ListMultimap} with the patterns identified by their closest centroid
      * @apiNote The pattern's vector size must be the same as centroids size.
      * @see MathUtils#computeEuclideanDistance(double[], double[])
      */
     @NonNull
-    private ListMultimap<Centroid, Pattern> getClassification(final @NonNull List<Pattern> patterns) {
+    private <P extends Pattern> ListMultimap<C, P> getClassification(final @NonNull List<P> patterns) {
         // this map will have exactly centroids#size() centroids with at least 1 pattern
-        final ListMultimap<Centroid, Pattern> multimap = MultimapBuilder.ListMultimapBuilder
+        final ListMultimap<C, P> multimap = MultimapBuilder.ListMultimapBuilder
                 .treeKeys(Comparator.comparingInt(Centroid::getId))
                 .arrayListValues(16)
                 .build();
 
-        for (final Pattern pattern : patterns) {
-            final Centroid nearest = centroids.stream()
+        for (final P pattern : patterns) {
+            final C nearest = centroids.stream()
                     .min(Comparator.comparingDouble(centroid ->
                             MathUtils.computeEuclideanDistance(pattern.getVector(), centroid.getVector())))
                     .orElseThrow(() -> new Error("this should never happen"));
 
             multimap.put(nearest, pattern);
         }
-
-        checkState(multimap.keySet().size() == centroids.size(), "Too many centroids");
 
         return multimap;
     }
@@ -181,10 +202,11 @@ public class KMeans {
      * </pre>
      *
      * @param centroidMap classified patterns per centroid to relocate
+     * @param <P>         type of {@link Pattern} to handle
      * @return a {@link List} with the new relocated {@link Centroid}
      */
     @NonNull
-    private List<Centroid> relocateCentroids(final @NonNull ListMultimap<Centroid, Pattern> centroidMap) {
+    private <P extends Pattern> List<C> relocateCentroids(final @NonNull ListMultimap<C, P> centroidMap) {
         final Int2ObjectMap<RepresentativeCentroid> representativeCentroids = new Int2ObjectOpenHashMap<>(amount + 1, 0.99F);
 
         centroidMap.forEach((centroid, pattern) -> representativeCentroids.computeIfAbsent(centroid.getId(), id ->
@@ -193,7 +215,7 @@ public class KMeans {
         return representativeCentroids.values()
                 .stream()
                 .peek(RepresentativeCentroid::close)
-                .map(Centroid::new)
+                .map(this::cloneCentroid)
                 .collect(ImmutableList.toImmutableList());
     }
 
@@ -207,10 +229,10 @@ public class KMeans {
      * @return <tt>true</tt> if the specified list have a discrepancy
      * TODO Jiizuz: 5/11/21 Implement a threshold
      */
-    private boolean centroidDiscrepancy(final @NonNull List<Centroid> other) {
+    private boolean centroidDiscrepancy(final @NonNull List<C> other) {
         checkArgument(other.size() == centroids.size(), "other centroids have different size", other.size());
 
-        for (byte i = 0; i < amount; i++) {
+        for (int i = 0; i < amount; i++) {
             if (!centroids.get(i).equals(other.get(i))) {
                 return true;
             }
@@ -220,6 +242,21 @@ public class KMeans {
     }
 
     // util
+
+    /**
+     * Returns whether a {@link Centroid} already has the specified vector.
+     *
+     * @param vector to check if it is already a centroid with
+     * @return <tt>true</tt> if a centroid already has the specified vector
+     */
+    private boolean containsCentroid(final double @NonNull [] vector) {
+        for (int i = 0, n = centroids.size(); i < n; i++) {
+            if (Arrays.equals(centroids.get(i).getVector(), vector)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Searches for the next pseudo-random integer using the specified
@@ -238,5 +275,18 @@ public class KMeans {
             next = random.nextInt(max);
         } while (!set.add(next));
         return next;
+    }
+
+    /**
+     * Clones the specified {@link Centroid} into a {@link C} centroid type.
+     *
+     * @param centroid to clone
+     * @return the cloned {@link Centroid} in a {@link C} form
+     */
+    private C cloneCentroid(final @NonNull Centroid centroid) {
+        final C clone = centroidFactory.get();
+        clone.setId(centroid.getId());
+        clone.setVector(centroid.getVector().clone());
+        return clone;
     }
 }
