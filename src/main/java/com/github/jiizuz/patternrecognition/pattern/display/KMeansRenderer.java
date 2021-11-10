@@ -25,7 +25,7 @@ public interface KMeansRenderer {
      * @throws NullPointerException if the map is <tt>null</tt>
      * @implSpec The specified {@link ListMultimap} is not modified in any way.
      */
-    void accumulate(@NonNull ListMultimap<Centroid, Pattern> centroidMap);
+    void accumulate(@NonNull ListMultimap<? extends Centroid, ? extends Pattern> centroidMap);
 
     /**
      * Closes this renderer and generates the final results of the accumulation

@@ -49,7 +49,7 @@ public class PrintStreamKMeansRenderer implements KMeansRenderer {
      * {@inheritDoc}
      */
     @Override
-    public void accumulate(final @NonNull ListMultimap<Centroid, Pattern> centroidMap) {
+    public void accumulate(final @NonNull ListMultimap<? extends Centroid, ? extends Pattern> centroidMap) {
         this.centroidMap.putAll(centroidMap);
     }
 
