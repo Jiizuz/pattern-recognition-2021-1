@@ -88,7 +88,7 @@ public class ChartKMeansRenderer implements KMeansRenderer {
      * {@inheritDoc}
      */
     @Override
-    public void accumulate(final @NonNull ListMultimap<Centroid, Pattern> centroidMap) {
+    public void accumulate(final @NonNull ListMultimap<? extends Centroid, ? extends Pattern> centroidMap) {
         checkArgument(!centroidMap.isEmpty(), "Empty centroid map");
 
         centroidMap.asMap().forEach((centroid, patterns) -> {
